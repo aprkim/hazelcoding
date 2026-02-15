@@ -69,15 +69,8 @@
     }
 
     .animal-card .emoji {
-      font-size: 3rem;
+      font-size: 3.5rem;
       display: block;
-      margin-bottom: 8px;
-    }
-
-    .animal-card .name {
-      font-weight: 600;
-      color: #4a5568;
-      font-size: 0.95rem;
     }
 
     /* ── Drawing Screen ── */
@@ -143,7 +136,7 @@
       border-radius: 8px;
       background: #fff;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 1.2rem;
       font-weight: 500;
       color: #4a5568;
       transition: background 0.1s, border-color 0.1s;
@@ -191,7 +184,7 @@
       }
 
       .animal-card .emoji {
-        font-size: 2.5rem;
+        font-size: 3rem;
       }
 
       .toolbar {
@@ -260,18 +253,16 @@
 
   <!-- Selection Screen -->
   <div id="selection-screen">
-    <h1>Pick an Animal to Draw</h1>
-    <p>Choose an animal and start drawing!</p>
+    <h1 style="font-size:2.5rem">Pick an Animal!</h1>
     <div class="animal-grid" id="animal-grid"></div>
   </div>
 
   <!-- Drawing Screen -->
   <div id="drawing-screen">
     <div class="toolbar">
-      <button class="tool-btn" id="btn-back">Back</button>
+      <button class="tool-btn" id="btn-back" title="Back">&#9664;</button>
 
       <div class="toolbar-group" style="margin-left: 8px;">
-        <label>Color:</label>
         <button class="color-btn active" data-color="#2d3748" style="background:#2d3748"></button>
         <button class="color-btn" data-color="#e53e3e" style="background:#e53e3e"></button>
         <button class="color-btn" data-color="#dd6b20" style="background:#dd6b20"></button>
@@ -294,19 +285,17 @@
       </div>
 
       <div class="toolbar-group">
-        <label>Size:</label>
         <input type="range" id="brush-size" min="1" max="40" value="5">
-        <span id="size-label" style="font-size:0.8rem;color:#718096;min-width:28px">5</span>
       </div>
 
       <div class="toolbar-group">
-        <button class="tool-btn" id="btn-eraser">Eraser</button>
+        <button class="tool-btn" id="btn-eraser" title="Eraser">&#9003;</button>
       </div>
 
       <span class="spacer"></span>
 
-      <button class="tool-btn" id="btn-clear">Clear</button>
-      <button class="tool-btn" id="btn-save">Save</button>
+      <button class="tool-btn" id="btn-clear" title="Clear">&#10227;</button>
+      <button class="tool-btn" id="btn-save" title="Save">&#11015;</button>
     </div>
 
     <div class="canvas-wrapper">
@@ -1091,7 +1080,7 @@
     animals.forEach(a => {
       const card = document.createElement('div');
       card.className = 'animal-card';
-      card.innerHTML = `<span class="emoji">${a.emoji}</span><span class="name">${a.name}</span>`;
+      card.innerHTML = `<span class="emoji">${a.emoji}</span>`;
       card.addEventListener('click', () => openDrawing(a.name));
       grid.appendChild(card);
     });
