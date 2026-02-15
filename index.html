@@ -173,6 +173,14 @@
     .tool-btn:hover { background: #f7fafc; border-color: #cbd5e0; }
     .tool-btn.active { background: #667eea; color: #fff; border-color: #667eea; }
 
+    .toolbar-divider {
+      width: 2px;
+      height: 28px;
+      background: #e2e8f0;
+      margin: 0 10px;
+      flex-shrink: 0;
+    }
+
     .spacer { flex: 1; }
 
     .canvas-wrapper {
@@ -245,6 +253,11 @@
         display: none;
       }
 
+      .toolbar-divider {
+        height: 36px;
+        margin: 0 14px;
+      }
+
       .spacer {
         flex-basis: 100%;
         height: 0;
@@ -310,6 +323,8 @@
         <button class="color-btn" data-color="#744210" style="background:#744210"></button>
         <input type="color" id="custom-color" value="#667eea" title="Custom color">
       </div>
+
+      <span class="toolbar-divider"></span>
 
       <div class="toolbar-group">
         <input type="range" id="brush-size" min="1" max="40" value="5">
