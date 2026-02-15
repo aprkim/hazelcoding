@@ -68,12 +68,14 @@
     }
 
     .animal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 16px;
     }
 
     .animal-card {
+      width: 120px;
       background: #fff;
       border: 2px solid #e2e8f0;
       border-radius: 16px;
@@ -214,11 +216,11 @@
       }
 
       .animal-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 12px;
       }
 
       .animal-card {
+        width: 100px;
         padding: 20px 10px;
       }
 
@@ -271,8 +273,11 @@
     /* ── Small phone ── */
     @media (max-width: 480px) {
       .animal-grid {
-        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+      }
+
+      .animal-card {
+        width: 90px;
       }
 
       .color-btn {
@@ -332,7 +337,7 @@
       <span class="toolbar-divider"></span>
 
       <div class="toolbar-group">
-        <input type="range" id="brush-size" min="1" max="40" value="5">
+        <input type="range" id="brush-size" min="1" max="40" value="20">
       </div>
 
       <div class="toolbar-group">
@@ -379,6 +384,7 @@
           { name: 'Rainbow',  emoji: '🌈' },
           { name: 'Stars',    emoji: '⭐' },
           { name: 'Wand',     emoji: '🪄' },
+          { name: 'Ballerina', emoji: '🩰' },
         ]
       },
       {
@@ -1328,6 +1334,99 @@
           ctx.moveTo(px - sz, py); ctx.lineTo(px + sz, py);
           ctx.stroke();
         }
+      },
+
+      Ballerina(ctx, cx, cy, s) {
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - 85 * s, 20 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Hair bun
+        ctx.beginPath();
+        ctx.arc(cx, cy - 108 * s, 10 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 7 * s, cy - 88 * s, 2.5 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx + 7 * s, cy - 88 * s, 2.5 * s, 0, Math.PI * 2);
+        ctx.fill();
+        // Smile
+        ctx.beginPath();
+        ctx.arc(cx, cy - 80 * s, 7 * s, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+        // Neck
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 65 * s);
+        ctx.lineTo(cx, cy - 55 * s);
+        ctx.stroke();
+        // Body / torso
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 55 * s);
+        ctx.lineTo(cx - 12 * s, cy - 15 * s);
+        ctx.moveTo(cx, cy - 55 * s);
+        ctx.lineTo(cx + 12 * s, cy - 15 * s);
+        ctx.lineTo(cx - 12 * s, cy - 15 * s);
+        ctx.stroke();
+        // Tutu (skirt - layered curves)
+        ctx.beginPath();
+        ctx.moveTo(cx - 50 * s, cy - 5 * s);
+        ctx.bezierCurveTo(cx - 40 * s, cy + 20 * s, cx - 20 * s, cy + 25 * s, cx, cy + 10 * s);
+        ctx.bezierCurveTo(cx + 20 * s, cy + 25 * s, cx + 40 * s, cy + 20 * s, cx + 50 * s, cy - 5 * s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx - 55 * s, cy - 2 * s);
+        ctx.bezierCurveTo(cx - 42 * s, cy + 28 * s, cx - 18 * s, cy + 32 * s, cx, cy + 15 * s);
+        ctx.bezierCurveTo(cx + 18 * s, cy + 32 * s, cx + 42 * s, cy + 28 * s, cx + 55 * s, cy - 2 * s);
+        ctx.stroke();
+        // Waist connection
+        ctx.beginPath();
+        ctx.moveTo(cx - 12 * s, cy - 15 * s);
+        ctx.lineTo(cx - 50 * s, cy - 5 * s);
+        ctx.moveTo(cx + 12 * s, cy - 15 * s);
+        ctx.lineTo(cx + 50 * s, cy - 5 * s);
+        ctx.stroke();
+        // Left arm (raised up gracefully)
+        ctx.beginPath();
+        ctx.moveTo(cx - 5 * s, cy - 50 * s);
+        ctx.bezierCurveTo(cx - 30 * s, cy - 60 * s, cx - 50 * s, cy - 80 * s, cx - 55 * s, cy - 100 * s);
+        ctx.stroke();
+        // Left hand
+        ctx.beginPath();
+        ctx.arc(cx - 55 * s, cy - 102 * s, 3 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Right arm (extended out)
+        ctx.beginPath();
+        ctx.moveTo(cx + 5 * s, cy - 50 * s);
+        ctx.bezierCurveTo(cx + 30 * s, cy - 55 * s, cx + 55 * s, cy - 60 * s, cx + 70 * s, cy - 55 * s);
+        ctx.stroke();
+        // Right hand
+        ctx.beginPath();
+        ctx.arc(cx + 72 * s, cy - 55 * s, 3 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Standing leg (straight down)
+        ctx.beginPath();
+        ctx.moveTo(cx + 5 * s, cy + 10 * s);
+        ctx.lineTo(cx + 5 * s, cy + 90 * s);
+        ctx.stroke();
+        // Standing foot (en pointe)
+        ctx.beginPath();
+        ctx.moveTo(cx + 5 * s, cy + 90 * s);
+        ctx.lineTo(cx + 5 * s, cy + 100 * s);
+        ctx.moveTo(cx - 2 * s, cy + 100 * s);
+        ctx.lineTo(cx + 12 * s, cy + 100 * s);
+        ctx.stroke();
+        // Raised leg (extended back)
+        ctx.beginPath();
+        ctx.moveTo(cx - 5 * s, cy + 10 * s);
+        ctx.bezierCurveTo(cx - 20 * s, cy + 20 * s, cx - 50 * s, cy + 15 * s, cx - 70 * s, cy - 5 * s);
+        ctx.stroke();
+        // Raised foot (pointed toe)
+        ctx.beginPath();
+        ctx.moveTo(cx - 70 * s, cy - 5 * s);
+        ctx.lineTo(cx - 80 * s, cy - 10 * s);
+        ctx.stroke();
       },
 
       Apple(ctx, cx, cy, s) {
