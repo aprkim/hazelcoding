@@ -317,6 +317,10 @@
       { name: 'Lion',      emoji: '🦁' },
       { name: 'Butterfly', emoji: '🦋' },
       { name: 'Whale',     emoji: '🐋' },
+      { name: 'Spider',   emoji: '🕷️' },
+      { name: 'Deer',     emoji: '🦌' },
+      { name: 'Flamingo', emoji: '🦩' },
+      { name: 'Otter',    emoji: '🦦' },
     ];
 
     // ── Animal Outline Drawers ──
@@ -797,6 +801,263 @@
         ctx.bezierCurveTo(cx - 50 * s, cy - 80 * s, cx - 55 * s, cy - 95 * s, cx - 65 * s, cy - 105 * s);
         ctx.moveTo(cx - 40 * s, cy - 55 * s);
         ctx.bezierCurveTo(cx - 35 * s, cy - 80 * s, cx - 30 * s, cy - 100 * s, cx - 20 * s, cy - 108 * s);
+        ctx.stroke();
+      },
+
+      Spider(ctx, cx, cy, s) {
+        // Body (abdomen)
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 30 * s, 35 * s, 45 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Head (cephalothorax)
+        ctx.beginPath();
+        ctx.arc(cx, cy - 30 * s, 25 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 8 * s, cy - 38 * s, 4 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 8 * s, cy - 38 * s, 4 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Fangs
+        ctx.beginPath();
+        ctx.moveTo(cx - 6 * s, cy - 10 * s);
+        ctx.lineTo(cx - 10 * s, cy + 2 * s);
+        ctx.moveTo(cx + 6 * s, cy - 10 * s);
+        ctx.lineTo(cx + 10 * s, cy + 2 * s);
+        ctx.stroke();
+        // 8 Legs (4 per side)
+        const legAngles = [-0.9, -0.45, 0.1, 0.5];
+        for (const dir of [-1, 1]) {
+          for (let i = 0; i < legAngles.length; i++) {
+            const a = legAngles[i];
+            const startY = cy - 20 * s + i * 12 * s;
+            const midX = cx + dir * 70 * s;
+            const midY = startY - 40 * s + i * 15 * s;
+            const endX = cx + dir * 100 * s;
+            const endY = midY + 50 * s;
+            ctx.beginPath();
+            ctx.moveTo(cx + dir * 20 * s, startY);
+            ctx.quadraticCurveTo(midX, midY, endX, endY);
+            ctx.stroke();
+          }
+        }
+      },
+
+      Deer(ctx, cx, cy, s) {
+        // Head
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 70 * s, 25 * s, 30 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 10 * s, cy - 75 * s, 4 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 10 * s, cy - 75 * s, 4 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.arc(cx, cy - 55 * s, 5 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Ears
+        ctx.beginPath();
+        ctx.ellipse(cx - 28 * s, cy - 85 * s, 8 * s, 16 * s, -0.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx + 28 * s, cy - 85 * s, 8 * s, 16 * s, 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+        // Left antler
+        ctx.beginPath();
+        ctx.moveTo(cx - 18 * s, cy - 95 * s);
+        ctx.lineTo(cx - 25 * s, cy - 135 * s);
+        ctx.lineTo(cx - 40 * s, cy - 125 * s);
+        ctx.moveTo(cx - 25 * s, cy - 125 * s);
+        ctx.lineTo(cx - 15 * s, cy - 150 * s);
+        ctx.moveTo(cx - 25 * s, cy - 135 * s);
+        ctx.lineTo(cx - 35 * s, cy - 150 * s);
+        ctx.stroke();
+        // Right antler
+        ctx.beginPath();
+        ctx.moveTo(cx + 18 * s, cy - 95 * s);
+        ctx.lineTo(cx + 25 * s, cy - 135 * s);
+        ctx.lineTo(cx + 40 * s, cy - 125 * s);
+        ctx.moveTo(cx + 25 * s, cy - 125 * s);
+        ctx.lineTo(cx + 15 * s, cy - 150 * s);
+        ctx.moveTo(cx + 25 * s, cy - 135 * s);
+        ctx.lineTo(cx + 35 * s, cy - 150 * s);
+        ctx.stroke();
+        // Neck
+        ctx.beginPath();
+        ctx.moveTo(cx - 12 * s, cy - 42 * s);
+        ctx.lineTo(cx - 18 * s, cy - 10 * s);
+        ctx.moveTo(cx + 12 * s, cy - 42 * s);
+        ctx.lineTo(cx + 18 * s, cy - 10 * s);
+        ctx.stroke();
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 30 * s, 50 * s, 40 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Front legs
+        ctx.beginPath();
+        ctx.moveTo(cx - 25 * s, cy + 65 * s);
+        ctx.lineTo(cx - 25 * s, cy + 130 * s);
+        ctx.moveTo(cx - 10 * s, cy + 65 * s);
+        ctx.lineTo(cx - 10 * s, cy + 130 * s);
+        ctx.stroke();
+        // Back legs
+        ctx.beginPath();
+        ctx.moveTo(cx + 25 * s, cy + 65 * s);
+        ctx.lineTo(cx + 25 * s, cy + 130 * s);
+        ctx.moveTo(cx + 10 * s, cy + 65 * s);
+        ctx.lineTo(cx + 10 * s, cy + 130 * s);
+        ctx.stroke();
+        // Hooves
+        for (const x of [-25, -10, 10, 25]) {
+          ctx.beginPath();
+          ctx.moveTo(cx + (x - 4) * s, cy + 130 * s);
+          ctx.lineTo(cx + (x + 4) * s, cy + 130 * s);
+          ctx.stroke();
+        }
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 48 * s, cy + 15 * s);
+        ctx.quadraticCurveTo(cx + 65 * s, cy + 5 * s, cx + 60 * s, cy + 25 * s);
+        ctx.stroke();
+      },
+
+      Flamingo(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 45 * s, 30 * s, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        // Neck (long curved)
+        ctx.beginPath();
+        ctx.moveTo(cx - 35 * s, cy - 15 * s);
+        ctx.bezierCurveTo(cx - 55 * s, cy - 60 * s, cx - 30 * s, cy - 110 * s, cx - 10 * s, cy - 120 * s);
+        ctx.moveTo(cx - 28 * s, cy - 12 * s);
+        ctx.bezierCurveTo(cx - 46 * s, cy - 55 * s, cx - 22 * s, cy - 105 * s, cx - 4 * s, cy - 115 * s);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx - 5 * s, cy - 122 * s, 14 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx - 1 * s, cy - 126 * s, 3 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Beak
+        ctx.beginPath();
+        ctx.moveTo(cx + 8 * s, cy - 122 * s);
+        ctx.lineTo(cx + 30 * s, cy - 118 * s);
+        ctx.lineTo(cx + 28 * s, cy - 115 * s);
+        ctx.lineTo(cx + 8 * s, cy - 117 * s);
+        ctx.stroke();
+        // Beak curve (bent)
+        ctx.beginPath();
+        ctx.moveTo(cx + 28 * s, cy - 118 * s);
+        ctx.quadraticCurveTo(cx + 35 * s, cy - 112 * s, cx + 28 * s, cy - 115 * s);
+        ctx.stroke();
+        // Wing detail
+        ctx.beginPath();
+        ctx.moveTo(cx - 20 * s, cy - 5 * s);
+        ctx.quadraticCurveTo(cx + 10 * s, cy - 20 * s, cx + 40 * s, cy - 5 * s);
+        ctx.stroke();
+        // Left leg
+        ctx.beginPath();
+        ctx.moveTo(cx - 10 * s, cy + 28 * s);
+        ctx.lineTo(cx - 12 * s, cy + 100 * s);
+        ctx.lineTo(cx - 22 * s, cy + 105 * s);
+        ctx.moveTo(cx - 12 * s, cy + 100 * s);
+        ctx.lineTo(cx - 2 * s, cy + 105 * s);
+        ctx.stroke();
+        // Right leg (bent, standing on one leg)
+        ctx.beginPath();
+        ctx.moveTo(cx + 5 * s, cy + 28 * s);
+        ctx.lineTo(cx + 8 * s, cy + 60 * s);
+        ctx.lineTo(cx + 20 * s, cy + 45 * s);
+        ctx.stroke();
+        // Tail feathers
+        ctx.beginPath();
+        ctx.moveTo(cx + 40 * s, cy - 5 * s);
+        ctx.quadraticCurveTo(cx + 60 * s, cy - 15 * s, cx + 55 * s, cy + 5 * s);
+        ctx.moveTo(cx + 40 * s, cy);
+        ctx.quadraticCurveTo(cx + 58 * s, cy - 5 * s, cx + 52 * s, cy + 12 * s);
+        ctx.stroke();
+      },
+
+      Otter(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 20 * s, 40 * s, 60 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - 55 * s, 32 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Ears
+        ctx.beginPath();
+        ctx.arc(cx - 25 * s, cy - 72 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 25 * s, cy - 72 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 12 * s, cy - 60 * s, 5 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 12 * s, cy - 60 * s, 5 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 42 * s, 7 * s, 5 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Mouth / cheeks
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 38 * s);
+        ctx.quadraticCurveTo(cx - 10 * s, cy - 32 * s, cx - 18 * s, cy - 36 * s);
+        ctx.moveTo(cx, cy - 38 * s);
+        ctx.quadraticCurveTo(cx + 10 * s, cy - 32 * s, cx + 18 * s, cy - 36 * s);
+        ctx.stroke();
+        // Whiskers
+        for (const dir of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(cx + dir * 12 * s, cy - 42 * s);
+          ctx.lineTo(cx + dir * 35 * s, cy - 48 * s);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx + dir * 12 * s, cy - 40 * s);
+          ctx.lineTo(cx + dir * 35 * s, cy - 38 * s);
+          ctx.stroke();
+        }
+        // Belly patch
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 25 * s, 25 * s, 35 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Arms/paws
+        ctx.beginPath();
+        ctx.moveTo(cx - 38 * s, cy + 5 * s);
+        ctx.quadraticCurveTo(cx - 55 * s, cy + 15 * s, cx - 50 * s, cy + 35 * s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + 38 * s, cy + 5 * s);
+        ctx.quadraticCurveTo(cx + 55 * s, cy + 15 * s, cx + 50 * s, cy + 35 * s);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 78 * s);
+        ctx.bezierCurveTo(cx + 10 * s, cy + 100 * s, cx + 5 * s, cy + 120 * s, cx - 10 * s, cy + 130 * s);
+        ctx.moveTo(cx, cy + 78 * s);
+        ctx.bezierCurveTo(cx + 18 * s, cy + 100 * s, cx + 14 * s, cy + 118 * s, cx, cy + 128 * s);
+        ctx.stroke();
+        // Feet
+        ctx.beginPath();
+        ctx.ellipse(cx - 20 * s, cy + 78 * s, 12 * s, 6 * s, 0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx + 20 * s, cy + 78 * s, 12 * s, 6 * s, -0.3, 0, Math.PI * 2);
         ctx.stroke();
       },
     };
