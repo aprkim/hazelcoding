@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Animal Drawing</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      overscroll-behavior: none;
+    }
+
+    body.drawing-mode {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Selection Screen ── */
+    #selection-screen {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    #selection-screen h1 {
+      font-size: 2rem;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    #selection-screen p {
+      color: #718096;
+      margin-bottom: 32px;
+    }
+
+    .animal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .animal-card {
+      background: #fff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px 12px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .animal-card:hover {
+      transform: translateY(-4px);
+      border-color: #667eea;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.18);
+    }
+
+    .animal-card:active {
+      transform: scale(0.96);
+      border-color: #667eea;
+    }
+
+    .animal-card .emoji {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .animal-card .name {
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.95rem;
+    }
+
+    /* ── Drawing Screen ── */
+    #drawing-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar label {
+      font-size: 0.8rem;
+      color: #718096;
+      font-weight: 600;
+    }
+
+    .color-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.1s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .color-btn:hover { transform: scale(1.15); }
+    .color-btn.active { border-color: #2d3748; transform: scale(1.15); }
+
+    input[type="color"] {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      padding: 0;
+      background: none;
+    }
+
+    input[type="range"] {
+      width: 100px;
+      accent-color: #667eea;
+    }
+
+    .tool-btn {
+      padding: 6px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #4a5568;
+      transition: background 0.1s, border-color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tool-btn:hover { background: #f7fafc; border-color: #cbd5e0; }
+    .tool-btn.active { background: #667eea; color: #fff; border-color: #667eea; }
+
+    .spacer { flex: 1; }
+
+    .canvas-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    canvas {
+      background: #fff;
+      cursor: crosshair;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      touch-action: none;
+    }
+
+    /* ── Tablet / Touch Responsive ── */
+    @media (max-width: 1024px) and (pointer: coarse) {
+      #selection-screen {
+        padding: 24px 16px;
+      }
+
+      #selection-screen h1 {
+        font-size: 1.6rem;
+      }
+
+      .animal-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+      }
+
+      .animal-card {
+        padding: 20px 10px;
+      }
+
+      .animal-card .emoji {
+        font-size: 2.5rem;
+      }
+
+      .toolbar {
+        gap: 8px;
+        padding: 8px 10px;
+      }
+
+      .color-btn {
+        width: 36px;
+        height: 36px;
+        border-width: 3px;
+      }
+
+      input[type="color"] {
+        width: 36px;
+        height: 36px;
+      }
+
+      .tool-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        min-height: 44px;
+      }
+
+      input[type="range"] {
+        width: 80px;
+        height: 36px;
+      }
+
+      .toolbar label {
+        display: none;
+      }
+
+      .spacer {
+        flex-basis: 100%;
+        height: 0;
+      }
+    }
+
+    /* ── Small phone ── */
+    @media (max-width: 480px) {
+      .animal-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .color-btn {
+        width: 32px;
+        height: 32px;
+      }
+
+      .toolbar {
+        gap: 6px;
+        padding: 6px 8px;
+      }
+
+      .tool-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        min-height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Selection Screen -->
+  <div id="selection-screen">
+    <h1>Pick an Animal to Draw</h1>
+    <p>Choose an animal and start drawing!</p>
+    <div class="animal-grid" id="animal-grid"></div>
+  </div>
+
+  <!-- Drawing Screen -->
+  <div id="drawing-screen">
+    <div class="toolbar">
+      <button class="tool-btn" id="btn-back">Back</button>
+
+      <div class="toolbar-group" style="margin-left: 8px;">
+        <label>Color:</label>
+        <button class="color-btn active" data-color="#2d3748" style="background:#2d3748"></button>
+        <button class="color-btn" data-color="#e53e3e" style="background:#e53e3e"></button>
+        <button class="color-btn" data-color="#dd6b20" style="background:#dd6b20"></button>
+        <button class="color-btn" data-color="#d69e2e" style="background:#d69e2e"></button>
+        <button class="color-btn" data-color="#38a169" style="background:#38a169"></button>
+        <button class="color-btn" data-color="#3182ce" style="background:#3182ce"></button>
+        <button class="color-btn" data-color="#805ad5" style="background:#805ad5"></button>
+        <button class="color-btn" data-color="#d53f8c" style="background:#d53f8c"></button>
+        <input type="color" id="custom-color" value="#667eea" title="Custom color">
+      </div>
+
+      <div class="toolbar-group">
+        <label>Size:</label>
+        <input type="range" id="brush-size" min="1" max="40" value="5">
+        <span id="size-label" style="font-size:0.8rem;color:#718096;min-width:28px">5</span>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="tool-btn" id="btn-eraser">Eraser</button>
+      </div>
+
+      <span class="spacer"></span>
+
+      <button class="tool-btn" id="btn-clear">Clear</button>
+      <button class="tool-btn" id="btn-save">Save</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // ── Animals ──
+    const animals = [
+      { name: 'Cat',       emoji: '🐱' },
+      { name: 'Dog',       emoji: '🐶' },
+      { name: 'Fish',      emoji: '🐟' },
+      { name: 'Bird',      emoji: '🐦' },
+      { name: 'Rabbit',    emoji: '🐰' },
+      { name: 'Turtle',    emoji: '🐢' },
+      { name: 'Elephant',  emoji: '🐘' },
+      { name: 'Lion',      emoji: '🦁' },
+      { name: 'Butterfly', emoji: '🦋' },
+      { name: 'Whale',     emoji: '🐋' },
+    ];
+
+    // ── Animal Outline Drawers ──
+    // Each function draws a simple outline centered on the canvas.
+    // cx, cy = center; s = scale factor based on canvas size.
+    const outlineDrawers = {
+      Cat(ctx, cx, cy, s) {
+        ctx.beginPath();
+        // Head
+        ctx.arc(cx, cy, 60 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Left ear
+        ctx.beginPath();
+        ctx.moveTo(cx - 45 * s, cy - 45 * s);
+        ctx.lineTo(cx - 60 * s, cy - 90 * s);
+        ctx.lineTo(cx - 15 * s, cy - 60 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Right ear
+        ctx.beginPath();
+        ctx.moveTo(cx + 45 * s, cy - 45 * s);
+        ctx.lineTo(cx + 60 * s, cy - 90 * s);
+        ctx.lineTo(cx + 15 * s, cy - 60 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 20 * s, cy - 10 * s, 7 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 20 * s, cy - 10 * s, 7 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 5 * s);
+        ctx.lineTo(cx - 6 * s, cy + 14 * s);
+        ctx.lineTo(cx + 6 * s, cy + 14 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 14 * s);
+        ctx.lineTo(cx, cy + 22 * s);
+        ctx.moveTo(cx - 12 * s, cy + 22 * s);
+        ctx.quadraticCurveTo(cx, cy + 30 * s, cx + 12 * s, cy + 22 * s);
+        ctx.stroke();
+        // Whiskers
+        for (const dir of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(cx + dir * 15 * s, cy + 14 * s);
+          ctx.lineTo(cx + dir * 55 * s, cy + 5 * s);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx + dir * 15 * s, cy + 18 * s);
+          ctx.lineTo(cx + dir * 55 * s, cy + 20 * s);
+          ctx.stroke();
+        }
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 110 * s, 50 * s, 60 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 50 * s, cy + 130 * s);
+        ctx.bezierCurveTo(cx + 90 * s, cy + 100 * s, cx + 100 * s, cy + 60 * s, cx + 80 * s, cy + 40 * s);
+        ctx.stroke();
+      },
+
+      Dog(ctx, cx, cy, s) {
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - 10 * s, 55 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Left floppy ear
+        ctx.beginPath();
+        ctx.ellipse(cx - 55 * s, cy + 10 * s, 18 * s, 40 * s, -0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        // Right floppy ear
+        ctx.beginPath();
+        ctx.ellipse(cx + 55 * s, cy + 10 * s, 18 * s, 40 * s, 0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 18 * s, cy - 18 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 18 * s, cy - 18 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 8 * s, 10 * s, 7 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 15 * s);
+        ctx.quadraticCurveTo(cx - 15 * s, cy + 28 * s, cx - 20 * s, cy + 22 * s);
+        ctx.moveTo(cx, cy + 15 * s);
+        ctx.quadraticCurveTo(cx + 15 * s, cy + 28 * s, cx + 20 * s, cy + 22 * s);
+        ctx.stroke();
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 100 * s, 55 * s, 65 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 50 * s, cy + 110 * s);
+        ctx.bezierCurveTo(cx + 85 * s, cy + 80 * s, cx + 95 * s, cy + 50 * s, cx + 75 * s, cy + 35 * s);
+        ctx.stroke();
+      },
+
+      Fish(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 90 * s, 50 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 85 * s, cy);
+        ctx.lineTo(cx + 130 * s, cy - 40 * s);
+        ctx.lineTo(cx + 130 * s, cy + 40 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx - 35 * s, cy - 10 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.arc(cx - 80 * s, cy + 5 * s, 12 * s, -0.5, 0.5);
+        ctx.stroke();
+        // Dorsal fin
+        ctx.beginPath();
+        ctx.moveTo(cx - 15 * s, cy - 48 * s);
+        ctx.quadraticCurveTo(cx + 10 * s, cy - 90 * s, cx + 40 * s, cy - 48 * s);
+        ctx.stroke();
+        // Scales (lines)
+        for (let i = -1; i <= 1; i++) {
+          ctx.beginPath();
+          ctx.arc(cx + i * 30 * s, cy, 20 * s, 0.3, Math.PI - 0.3);
+          ctx.stroke();
+        }
+      },
+
+      Bird(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 10 * s, 45 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - 60 * s, 30 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx + 8 * s, cy - 65 * s, 5 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Beak
+        ctx.beginPath();
+        ctx.moveTo(cx + 28 * s, cy - 65 * s);
+        ctx.lineTo(cx + 55 * s, cy - 58 * s);
+        ctx.lineTo(cx + 28 * s, cy - 52 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Left wing
+        ctx.beginPath();
+        ctx.moveTo(cx - 40 * s, cy - 10 * s);
+        ctx.quadraticCurveTo(cx - 110 * s, cy - 30 * s, cx - 100 * s, cy + 20 * s);
+        ctx.lineTo(cx - 40 * s, cy + 10 * s);
+        ctx.stroke();
+        // Right wing
+        ctx.beginPath();
+        ctx.moveTo(cx + 40 * s, cy - 10 * s);
+        ctx.quadraticCurveTo(cx + 110 * s, cy - 30 * s, cx + 100 * s, cy + 20 * s);
+        ctx.lineTo(cx + 40 * s, cy + 10 * s);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx - 10 * s, cy + 60 * s);
+        ctx.lineTo(cx - 25 * s, cy + 100 * s);
+        ctx.moveTo(cx, cy + 62 * s);
+        ctx.lineTo(cx, cy + 105 * s);
+        ctx.moveTo(cx + 10 * s, cy + 60 * s);
+        ctx.lineTo(cx + 25 * s, cy + 100 * s);
+        ctx.stroke();
+        // Legs
+        ctx.beginPath();
+        ctx.moveTo(cx - 10 * s, cy + 55 * s);
+        ctx.lineTo(cx - 10 * s, cy + 85 * s);
+        ctx.moveTo(cx + 10 * s, cy + 55 * s);
+        ctx.lineTo(cx + 10 * s, cy + 85 * s);
+        ctx.stroke();
+      },
+
+      Rabbit(ctx, cx, cy, s) {
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy + 10 * s, 50 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Left ear
+        ctx.beginPath();
+        ctx.ellipse(cx - 22 * s, cy - 75 * s, 14 * s, 45 * s, -0.15, 0, Math.PI * 2);
+        ctx.stroke();
+        // Right ear
+        ctx.beginPath();
+        ctx.ellipse(cx + 22 * s, cy - 75 * s, 14 * s, 45 * s, 0.15, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 16 * s, cy, 6 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 16 * s, cy, 6 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 14 * s);
+        ctx.lineTo(cx - 5 * s, cy + 21 * s);
+        ctx.lineTo(cx + 5 * s, cy + 21 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 21 * s);
+        ctx.lineTo(cx, cy + 28 * s);
+        ctx.stroke();
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 100 * s, 45 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Fluffy tail
+        ctx.beginPath();
+        ctx.arc(cx + 40 * s, cy + 130 * s, 15 * s, 0, Math.PI * 2);
+        ctx.stroke();
+      },
+
+      Turtle(ctx, cx, cy, s) {
+        // Shell
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 80 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Shell pattern
+        ctx.beginPath();
+        ctx.moveTo(cx - 40 * s, cy - 45 * s);
+        ctx.quadraticCurveTo(cx, cy - 20 * s, cx + 40 * s, cy - 45 * s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx - 55 * s, cy + 10 * s);
+        ctx.quadraticCurveTo(cx, cy - 10 * s, cx + 55 * s, cy + 10 * s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 52 * s);
+        ctx.lineTo(cx, cy + 52 * s);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx + 100 * s, cy, 22 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx + 106 * s, cy - 6 * s, 4 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Neck
+        ctx.beginPath();
+        ctx.moveTo(cx + 78 * s, cy - 8 * s);
+        ctx.lineTo(cx + 80 * s, cy - 8 * s);
+        ctx.moveTo(cx + 78 * s, cy + 8 * s);
+        ctx.lineTo(cx + 80 * s, cy + 8 * s);
+        ctx.stroke();
+        // Legs
+        ctx.beginPath();
+        ctx.ellipse(cx - 50 * s, cy + 50 * s, 12 * s, 20 * s, 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx + 50 * s, cy + 50 * s, 12 * s, 20 * s, -0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx - 50 * s, cy - 40 * s, 12 * s, 18 * s, -0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx + 50 * s, cy - 40 * s, 12 * s, 18 * s, 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx - 78 * s, cy + 5 * s);
+        ctx.lineTo(cx - 100 * s, cy + 15 * s);
+        ctx.stroke();
+      },
+
+      Elephant(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 30 * s, 80 * s, 65 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx - 60 * s, cy - 40 * s, 45 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Left ear
+        ctx.beginPath();
+        ctx.ellipse(cx - 110 * s, cy - 35 * s, 25 * s, 35 * s, -0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx - 48 * s, cy - 48 * s, 5 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Trunk
+        ctx.beginPath();
+        ctx.moveTo(cx - 75 * s, cy - 10 * s);
+        ctx.bezierCurveTo(cx - 90 * s, cy + 30 * s, cx - 70 * s, cy + 70 * s, cx - 55 * s, cy + 85 * s);
+        ctx.moveTo(cx - 65 * s, cy - 8 * s);
+        ctx.bezierCurveTo(cx - 78 * s, cy + 30 * s, cx - 58 * s, cy + 68 * s, cx - 45 * s, cy + 80 * s);
+        ctx.stroke();
+        // Legs
+        for (const x of [-35, 0, 35, 55]) {
+          ctx.beginPath();
+          ctx.moveTo(cx + x * s, cy + 85 * s);
+          ctx.lineTo(cx + x * s, cy + 130 * s);
+          ctx.lineTo(cx + (x + 18) * s, cy + 130 * s);
+          ctx.lineTo(cx + (x + 18) * s, cy + 85 * s);
+          ctx.stroke();
+        }
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 78 * s, cy + 10 * s);
+        ctx.bezierCurveTo(cx + 100 * s, cy + 30 * s, cx + 110 * s, cy + 60 * s, cx + 105 * s, cy + 80 * s);
+        ctx.stroke();
+      },
+
+      Lion(ctx, cx, cy, s) {
+        // Mane
+        ctx.beginPath();
+        ctx.arc(cx, cy - 20 * s, 65 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Mane tufts
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
+          ctx.beginPath();
+          const mx = cx + Math.cos(a) * 65 * s;
+          const my = (cy - 20 * s) + Math.sin(a) * 65 * s;
+          ctx.arc(mx, my, 14 * s, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        // Face
+        ctx.beginPath();
+        ctx.arc(cx, cy - 20 * s, 40 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Eyes
+        ctx.beginPath();
+        ctx.arc(cx - 14 * s, cy - 28 * s, 6 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 14 * s, cy - 28 * s, 6 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Nose
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 12 * s);
+        ctx.lineTo(cx - 6 * s, cy - 4 * s);
+        ctx.lineTo(cx + 6 * s, cy - 4 * s);
+        ctx.closePath();
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 4 * s);
+        ctx.quadraticCurveTo(cx - 10 * s, cy + 8 * s, cx - 15 * s, cy + 4 * s);
+        ctx.moveTo(cx, cy - 4 * s);
+        ctx.quadraticCurveTo(cx + 10 * s, cy + 8 * s, cx + 15 * s, cy + 4 * s);
+        ctx.stroke();
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 80 * s, 50 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 48 * s, cy + 100 * s);
+        ctx.bezierCurveTo(cx + 85 * s, cy + 80 * s, cx + 95 * s, cy + 50 * s, cx + 90 * s, cy + 35 * s);
+        ctx.stroke();
+        // Tail tuft
+        ctx.beginPath();
+        ctx.arc(cx + 90 * s, cy + 32 * s, 8 * s, 0, Math.PI * 2);
+        ctx.stroke();
+      },
+
+      Butterfly(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 6 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - 62 * s, 10 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Antennae
+        ctx.beginPath();
+        ctx.moveTo(cx - 5 * s, cy - 70 * s);
+        ctx.bezierCurveTo(cx - 20 * s, cy - 100 * s, cx - 35 * s, cy - 105 * s, cx - 40 * s, cy - 100 * s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + 5 * s, cy - 70 * s);
+        ctx.bezierCurveTo(cx + 20 * s, cy - 100 * s, cx + 35 * s, cy - 105 * s, cx + 40 * s, cy - 100 * s);
+        ctx.stroke();
+        // Upper left wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 30 * s);
+        ctx.bezierCurveTo(cx - 50 * s, cy - 80 * s, cx - 110 * s, cy - 60 * s, cx - 90 * s, cy - 15 * s);
+        ctx.bezierCurveTo(cx - 75 * s, cy + 10 * s, cx - 30 * s, cy + 5 * s, cx, cy - 5 * s);
+        ctx.stroke();
+        // Upper right wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 30 * s);
+        ctx.bezierCurveTo(cx + 50 * s, cy - 80 * s, cx + 110 * s, cy - 60 * s, cx + 90 * s, cy - 15 * s);
+        ctx.bezierCurveTo(cx + 75 * s, cy + 10 * s, cx + 30 * s, cy + 5 * s, cx, cy - 5 * s);
+        ctx.stroke();
+        // Lower left wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 5 * s);
+        ctx.bezierCurveTo(cx - 40 * s, cy + 5 * s, cx - 80 * s, cy + 25 * s, cx - 70 * s, cy + 55 * s);
+        ctx.bezierCurveTo(cx - 55 * s, cy + 75 * s, cx - 20 * s, cy + 60 * s, cx, cy + 35 * s);
+        ctx.stroke();
+        // Lower right wing
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 5 * s);
+        ctx.bezierCurveTo(cx + 40 * s, cy + 5 * s, cx + 80 * s, cy + 25 * s, cx + 70 * s, cy + 55 * s);
+        ctx.bezierCurveTo(cx + 55 * s, cy + 75 * s, cx + 20 * s, cy + 60 * s, cx, cy + 35 * s);
+        ctx.stroke();
+        // Wing patterns (circles)
+        ctx.beginPath();
+        ctx.arc(cx - 55 * s, cy - 25 * s, 15 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 55 * s, cy - 25 * s, 15 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx - 40 * s, cy + 35 * s, 10 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 40 * s, cy + 35 * s, 10 * s, 0, Math.PI * 2);
+        ctx.stroke();
+      },
+
+      Whale(ctx, cx, cy, s) {
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(cx - 10 * s, cy, 100 * s, 55 * s, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(cx + 85 * s, cy - 8 * s);
+        ctx.bezierCurveTo(cx + 105 * s, cy - 10 * s, cx + 115 * s, cy - 30 * s, cx + 135 * s, cy - 45 * s);
+        ctx.moveTo(cx + 85 * s, cy + 8 * s);
+        ctx.bezierCurveTo(cx + 105 * s, cy + 10 * s, cx + 115 * s, cy + 30 * s, cx + 135 * s, cy + 45 * s);
+        ctx.stroke();
+        // Tail fluke
+        ctx.beginPath();
+        ctx.moveTo(cx + 135 * s, cy - 45 * s);
+        ctx.quadraticCurveTo(cx + 115 * s, cy - 10 * s, cx + 135 * s, cy + 45 * s);
+        ctx.stroke();
+        // Eye
+        ctx.beginPath();
+        ctx.arc(cx - 60 * s, cy - 12 * s, 6 * s, 0, Math.PI * 2);
+        ctx.stroke();
+        // Mouth
+        ctx.beginPath();
+        ctx.moveTo(cx - 108 * s, cy + 3 * s);
+        ctx.quadraticCurveTo(cx - 50 * s, cy + 20 * s, cx + 20 * s, cy + 8 * s);
+        ctx.stroke();
+        // Belly line
+        ctx.beginPath();
+        ctx.moveTo(cx - 90 * s, cy + 15 * s);
+        ctx.quadraticCurveTo(cx - 40 * s, cy + 45 * s, cx + 30 * s, cy + 25 * s);
+        ctx.stroke();
+        // Dorsal fin
+        ctx.beginPath();
+        ctx.moveTo(cx + 10 * s, cy - 53 * s);
+        ctx.quadraticCurveTo(cx + 25 * s, cy - 85 * s, cx + 45 * s, cy - 52 * s);
+        ctx.stroke();
+        // Water spout
+        ctx.beginPath();
+        ctx.moveTo(cx - 40 * s, cy - 55 * s);
+        ctx.bezierCurveTo(cx - 50 * s, cy - 80 * s, cx - 55 * s, cy - 95 * s, cx - 65 * s, cy - 105 * s);
+        ctx.moveTo(cx - 40 * s, cy - 55 * s);
+        ctx.bezierCurveTo(cx - 35 * s, cy - 80 * s, cx - 30 * s, cy - 100 * s, cx - 20 * s, cy - 108 * s);
+        ctx.stroke();
+      },
+    };
+
+    // ── State ──
+    let currentAnimal = null;
+    let drawing = false;
+    let erasing = false;
+    let brushColor = '#2d3748';
+    let brushSize = 5;
+    let lastX, lastY;
+
+    // ── DOM refs ──
+    const selScreen = document.getElementById('selection-screen');
+    const drawScreen = document.getElementById('drawing-screen');
+    const grid = document.getElementById('animal-grid');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // ── Build selection grid ──
+    animals.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'animal-card';
+      card.innerHTML = `<span class="emoji">${a.emoji}</span><span class="name">${a.name}</span>`;
+      card.addEventListener('click', () => openDrawing(a.name));
+      grid.appendChild(card);
+    });
+
+    // ── Canvas sizing ──
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    function resizeCanvas() {
+      const wrapper = document.querySelector('.canvas-wrapper');
+      if (!wrapper) return;
+      const pad = isTouch ? 8 : 32;
+      const w = wrapper.clientWidth - pad;
+      const h = wrapper.clientHeight - pad;
+      canvas.width = isTouch ? w : Math.min(w, 900);
+      canvas.height = isTouch ? h : Math.min(h, 700);
+      if (currentAnimal) drawOutline();
+    }
+
+    // ── Draw outline ──
+    function drawOutline() {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const drawer = outlineDrawers[currentAnimal];
+      if (!drawer) return;
+      ctx.save();
+      ctx.strokeStyle = '#cbd5e0';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const s = Math.min(canvas.width, canvas.height) / 350;
+      drawer(ctx, canvas.width / 2, canvas.height / 2, s);
+      ctx.restore();
+    }
+
+    // ── Screen transitions ──
+    function openDrawing(name) {
+      currentAnimal = name;
+      selScreen.style.display = 'none';
+      drawScreen.style.display = 'flex';
+      document.body.classList.add('drawing-mode');
+      resizeCanvas();
+    }
+
+    function goBack() {
+      drawScreen.style.display = 'none';
+      selScreen.style.display = 'block';
+      document.body.classList.remove('drawing-mode');
+      currentAnimal = null;
+      erasing = false;
+      document.getElementById('btn-eraser').classList.remove('active');
+    }
+
+    // ── Drawing logic ──
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches ? e.touches[0] : e;
+      return [touch.clientX - rect.left, touch.clientY - rect.top];
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      if (e.touches && e.touches.length > 1) return; // ignore multi-touch
+      drawing = true;
+      [lastX, lastY] = getPos(e);
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      if (e.touches && e.touches.length > 1) { stopDraw(); return; }
+      const [x, y] = getPos(e);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = erasing ? '#ffffff' : brushColor;
+      ctx.lineWidth = erasing ? brushSize * 3 : brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+      ctx.restore();
+      [lastX, lastY] = [x, y];
+    }
+
+    function stopDraw() {
+      drawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+    canvas.addEventListener('touchcancel', stopDraw);
+
+    // ── Toolbar: Colors ──
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        brushColor = btn.dataset.color;
+        erasing = false;
+        document.getElementById('btn-eraser').classList.remove('active');
+      });
+    });
+
+    document.getElementById('custom-color').addEventListener('input', e => {
+      brushColor = e.target.value;
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      erasing = false;
+      document.getElementById('btn-eraser').classList.remove('active');
+    });
+
+    // ── Toolbar: Brush size ──
+    const sizeSlider = document.getElementById('brush-size');
+    const sizeLabel = document.getElementById('size-label');
+    sizeSlider.addEventListener('input', () => {
+      brushSize = parseInt(sizeSlider.value);
+      sizeLabel.textContent = brushSize;
+    });
+
+    // ── Toolbar: Eraser ──
+    document.getElementById('btn-eraser').addEventListener('click', () => {
+      erasing = !erasing;
+      document.getElementById('btn-eraser').classList.toggle('active', erasing);
+      if (erasing) {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      }
+    });
+
+    // ── Toolbar: Clear ──
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      drawOutline();
+    });
+
+    // ── Toolbar: Save ──
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `${currentAnimal}-drawing.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+
+    // ── Toolbar: Back ──
+    document.getElementById('btn-back').addEventListener('click', goBack);
+
+    // ── Resize handling ──
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+</body>
+</html>
